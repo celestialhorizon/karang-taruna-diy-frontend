@@ -3,8 +3,9 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from './ui/
 import { Input } from './ui/input';
 import { Label } from './ui/label';
 import { Button } from './ui/button';
-import { toast } from 'sonner@2.0.3';
-import logo from 'assets/logo';
+import { ThemeToggle } from './ui/theme-toggle';
+import { toast } from 'sonner';
+import logo from '../assets/logo.png';
 import { api } from '../lib/api';
 import { authStorage } from '../lib/auth';
 
@@ -52,7 +53,12 @@ export function LoginPage({ onNavigate, onLogin }: LoginPageProps) {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-red-50 to-yellow-50 flex items-center justify-center p-4">
+    <div className="min-h-screen bg-gradient-to-br from-red-50 to-yellow-50 flex items-center justify-center p-4 relative">
+      {/* Theme Toggle */}
+      <div className="absolute top-4 right-4">
+        <ThemeToggle />
+      </div>
+      
       <Card className="w-full max-w-md">
         <CardHeader className="text-center space-y-2">
           <div className="flex justify-center mb-2">
@@ -93,26 +99,6 @@ export function LoginPage({ onNavigate, onLogin }: LoginPageProps) {
 
             <Button type="submit" className="w-full bg-red-600 hover:bg-red-700">
               Login
-            </Button>
-
-            <Button 
-              type="button" 
-              variant="outline" 
-              className="w-full border-gray-300 hover:bg-gray-50"
-              onClick={async () => {
-                try {
-                  const response = await api.login({ email: 'user@karangtaruna.com', password: 'user123' });
-                  authStorage.setToken(response.token);
-                  const { token: t, ...userData } = response;
-                  authStorage.setUser(userData);
-                  toast.success(`Selamat datang, ${response.name || response.username}!`);
-                  onLogin(response);
-                } catch (error: any) {
-                  toast.error(error.message);
-                }
-              }}
-            >
-              Login dengan Akun Test
             </Button>
 
             <div className="text-center text-sm">

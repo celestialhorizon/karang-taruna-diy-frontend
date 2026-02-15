@@ -158,7 +158,7 @@ export function Contact({ onNavigate }: ContactProps) {
             {/* FAQ Quick Link */}
             <div className="bg-gradient-to-br from-red-50 to-yellow-50 border border-red-200 rounded-lg p-6">
               <h3 className="font-semibold text-gray-900 mb-2">Pertanyaan Umum?</h3>
-              <p className="text-sm text-gray-700 mb-4">
+              <p className="text-sm text-gray-900 mb-4">
                 Mungkin pertanyaan Anda sudah terjawab di halaman FAQ kami.
               </p>
               <Button

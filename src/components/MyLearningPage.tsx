@@ -1,12 +1,13 @@
 import { useState, useEffect } from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from './ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
 import { Button } from './ui/button';
 import { Badge } from './ui/badge';
 import { Progress } from './ui/progress';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from './ui/tabs';
 import { ArrowLeft, BookOpen, CheckCircle, Clock, Play } from 'lucide-react';
 import { ImageWithFallback } from './ImageWithFallback';
-import logo from 'assets/logo';
+import { ThemeToggle } from './ui/theme-toggle';
+import logo from '../assets/logo.png';
 import { api } from '../lib/api';
 import { authStorage } from '../lib/auth';
 
@@ -125,6 +126,7 @@ export function MyLearningPage({ user, onNavigate }: MyLearningPageProps) {
               </div>
             </div>
             <div className="flex items-center gap-2">
+              <ThemeToggle />
               <Button variant="outline" size="sm" onClick={() => onNavigate('home')} className="text-xs sm:text-sm">
                 <ArrowLeft className="w-4 h-4 sm:mr-2" />
                 <span className="hidden sm:inline">Beranda</span>

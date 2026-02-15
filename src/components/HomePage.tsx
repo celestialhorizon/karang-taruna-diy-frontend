@@ -4,11 +4,12 @@ import { Button } from './ui/button';
 import { Input } from './ui/input';
 import { Badge } from './ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from './ui/select';
-import { Hammer, Search, LogOut, Video, Wrench, Paintbrush, Lightbulb, Droplet, Menu, GraduationCap } from 'lucide-react';
+import { Hammer, Search, LogOut, Video, Wrench, Paintbrush, Lightbulb, Droplet, Menu, GraduationCap, ShieldCheck } from 'lucide-react';
 import { ImageWithFallback } from './ImageWithFallback';
 import { Footer } from './Footer';
 import { BuntingDecoration } from './BuntingDecoration';
-import logo from 'assets/logo';
+import { ThemeToggle } from './ui/theme-toggle';
+import logo from '../assets/logo.png';
 import { api } from '../lib/api';
 import { authStorage } from '../lib/auth';
 
@@ -182,6 +183,7 @@ export function HomePage({ user, onNavigate, onLogout }: HomePageProps) {
               </div>
             </div>
             <div className="flex items-center gap-2">
+              <ThemeToggle />
               {user ? (
                 <>
                   <Button 
@@ -193,6 +195,17 @@ export function HomePage({ user, onNavigate, onLogout }: HomePageProps) {
                     <GraduationCap className="w-4 h-4 sm:mr-2" />
                     <span className="hidden sm:inline">Pembelajaran Saya</span>
                   </Button>
+                  {user?.role === 'admin' && (
+                    <Button 
+                      variant="ghost" 
+                      size="sm" 
+                      onClick={() => onNavigate('admin-tutorials')} 
+                      className="text-xs sm:text-sm text-purple-600"
+                    >
+                      <ShieldCheck className="w-4 h-4 sm:mr-2" />
+                      <span className="hidden sm:inline">Admin</span>
+                    </Button>
+                  )}
                   <div className="text-right hidden md:block">
                     <p className="text-xs text-gray-500">Selamat datang,</p>
                     <p className="text-sm font-medium text-gray-900">{user.name}</p>
@@ -204,14 +217,6 @@ export function HomePage({ user, onNavigate, onLogout }: HomePageProps) {
                 </>
               ) : (
                 <>
-                  <Button 
-                    variant="ghost" 
-                    size="sm" 
-                    onClick={() => onNavigate('admin-login')} 
-                    className="text-xs sm:text-sm text-gray-600"
-                  >
-                    Admin
-                  </Button>
                   <Button 
                     variant="outline" 
                     size="sm" 

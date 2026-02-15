@@ -8,8 +8,9 @@ import { ArrowLeft, ArrowRight, Video, Clock, BarChart, CheckCircle, AlertCircle
 import { ImageWithFallback } from './ImageWithFallback';
 import { LightboxImage } from './ui/LightboxImage';
 import { SecureVideoPlayer } from './ui/SecureVideoPlayer';
-import { toast } from 'sonner@2.0.3';
-import logo from 'assets/logo';
+import { ThemeToggle } from './ui/theme-toggle';
+import { toast } from 'sonner';
+import logo from '../assets/logo.png';
 import { api } from '../lib/api';
 import { authStorage } from '../lib/auth';
 
@@ -140,7 +141,10 @@ export function DetailPage({ user, onNavigate }: DetailPageProps) {
               <ArrowLeft className="w-4 h-4 mr-1 sm:mr-2" />
               Kembali
             </Button>
-            <img src={logo} alt="Logo" className="w-8 h-8 sm:w-10 sm:h-10" />
+            <div className="flex items-center gap-2">
+              <ThemeToggle />
+              <img src={logo} alt="Logo" className="w-8 h-8 sm:w-10 sm:h-10" />
+            </div>
           </div>
         </div>
       </header>
@@ -210,7 +214,13 @@ export function DetailPage({ user, onNavigate }: DetailPageProps) {
                     </div>
                     <div className="flex-1 min-w-0">
                       <CardTitle className="text-lg sm:text-xl mb-1">{currentStepData.title}</CardTitle>
-                      <CardDescription className="text-sm">{currentStepData.description}</CardDescription>
+                      <CardDescription className="text-sm">
+                         <h3 className="font-semibold mb-3 flex items-center gap-2">
+                          <CheckCircle className="w-5 h-5 text-green-600" />
+                          Deskripsi Langkah
+                        </h3>
+                        {currentStepData.description}
+                      </CardDescription>
                     </div>
                   </div>
                 </CardHeader>
@@ -236,13 +246,7 @@ export function DetailPage({ user, onNavigate }: DetailPageProps) {
                       </div>
                     )}
 
-                    <div>
-                      <h3 className="font-semibold mb-3 flex items-center gap-2">
-                        <CheckCircle className="w-5 h-5 text-green-600" />
-                        Deskripsi Langkah
-                      </h3>
-                      <p className="text-sm text-gray-700 leading-relaxed">{currentStepData.description}</p>
-                    </div>
+                   
 
                     {currentStepData.safetyNote && (
                       <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">

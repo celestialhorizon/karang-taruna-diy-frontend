@@ -72,7 +72,7 @@ export function TutorialManagement() {
     try {
       const token = authStorage.getToken();
       if (!token) return;
-      const res = await fetch('http://localhost:5000/api/tutorials', {
+      const res = await fetch(`${import.meta.env.VITE_API_URL}/api/tutorials`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
         body: JSON.stringify({
@@ -107,7 +107,7 @@ export function TutorialManagement() {
     try {
       const token = authStorage.getToken();
       if (!token) return;
-      const res = await fetch(`http://localhost:5000/api/tutorials/${selectedTutorial._id}`, {
+      const res = await fetch(`${import.meta.env.VITE_API_URL}/api/tutorials/${selectedTutorial._id}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
         body: JSON.stringify({
@@ -136,7 +136,7 @@ export function TutorialManagement() {
       try {
         const token = authStorage.getToken();
         if (!token) return;
-        const res = await fetch(`http://localhost:5000/api/tutorials/${id}`, {
+        const res = await fetch(`${import.meta.env.VITE_API_URL}/api/tutorials/${id}`, {
           method: 'DELETE',
           headers: { 'Authorization': `Bearer ${token}` }
         });
@@ -153,7 +153,7 @@ export function TutorialManagement() {
     try {
       const token = authStorage.getToken();
       if (!token) return;
-      await fetch(`http://localhost:5000/api/tutorials/${id}`, {
+      await fetch(`${import.meta.env.VITE_API_URL}/api/tutorials/${id}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
         body: JSON.stringify({ isActive: !isActive })

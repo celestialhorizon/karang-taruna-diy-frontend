@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate, useNavigate, useLocation } from 'react-router-dom';
+import { ThemeProvider } from 'next-themes';
 import { RegisterPage } from './components/RegisterPage';
 import { LoginPage } from './components/LoginPage';
 import { HomePage } from './components/HomePage';
@@ -18,7 +19,6 @@ import { authStorage } from './lib/auth';
 // Wrapper component to handle navigation logic
 function AppContent() {
   const [currentUser, setCurrentUser] = useState<any>(null);
-  const [currentAdmin, setCurrentAdmin] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
   const location = useLocation();
@@ -28,19 +28,6 @@ function AppContent() {
     const user = authStorage.getUser();
     if (user) {
       setCurrentUser(user);
-    }
-
-    const storedAdmin = localStorage.getItem('diy_admin_user');
-    if (storedAdmin) {
-      const admin = JSON.parse(storedAdmin);
-      setCurrentAdmin(admin);
-      
-      // Also restore token if exists
-      const token = authStorage.getToken();
-      if (!token && user) {
-        // If no token but we have admin data, try to restore from user
-        authStorage.setToken(user.token);
-      }
     }
     setLoading(false);
   }, []);
@@ -55,6 +42,8 @@ function AppContent() {
       'my-learning': '/my-learning',
       'admin-login': '/admin/login',
       'admin-dashboard': '/admin/dashboard',
+      'admin-tutorials': '/admin/tutorials',
+      'admin-users': '/admin/users',
       'privacy': '/privacy',
       'terms': '/terms',
       'about': '/about',
@@ -87,20 +76,9 @@ function AppContent() {
     }
   };
 
-  const handleAdminLogin = (adminData: any) => {
-    setCurrentAdmin(adminData);
-    navigate('/admin/dashboard');
-  };
-
   const handleLogout = () => {
     authStorage.clearAuth();
     setCurrentUser(null);
-    navigate('/');
-  };
-
-  const handleAdminLogout = () => {
-    localStorage.removeItem('diy_admin_user');
-    setCurrentAdmin(null);
     navigate('/');
   };
 
@@ -155,20 +133,56 @@ function AppContent() {
       />
       
       {/* Admin routes */}
-      <Route path="/admin/login" element={<AdminLoginPage onNavigate={handleNavigate} onAdminLogin={handleAdminLogin} />} />
+      <Route path="/admin/login" element={<AdminLoginPage onNavigate={handleNavigate} onAdminLogin={handleLogin} />} />
       <Route 
         path="/admin/dashboard" 
         element={
-          currentAdmin ? (
+          currentUser?.role === 'admin' ? (
             <AdminDashboard
-              admin={currentAdmin}
+              admin={currentUser}
               onNavigate={handleNavigate}
-              onAdminLogout={handleAdminLogout}
+              onAdminLogout={handleLogout}
+              defaultTab="tutorials"
             />
           ) : (
             <Navigate to="/admin/login" replace />
           )
         } 
+      />
+      <Route 
+        path="/admin/tutorials" 
+        element={
+          currentUser?.role === 'admin' ? (
+            <AdminDashboard
+              admin={currentUser}
+              onNavigate={handleNavigate}
+              onAdminLogout={handleLogout}
+              defaultTab="tutorials"
+            />
+          ) : (
+            <Navigate to="/admin/login" replace />
+          )
+        } 
+      />
+      <Route 
+        path="/admin/users" 
+        element={
+          currentUser?.role === 'admin' ? (
+            <AdminDashboard
+              admin={currentUser}
+              onNavigate={handleNavigate}
+              onAdminLogout={handleLogout}
+              defaultTab="users"
+            />
+          ) : (
+            <Navigate to="/admin/login" replace />
+          )
+        } 
+      />
+      {/* Admin root redirect */}
+      <Route 
+        path="/admin" 
+        element={<Navigate to="/admin/tutorials" replace />}
       />
       
       {/* Catch all route */}
@@ -179,9 +193,11 @@ function AppContent() {
 
 export default function App() {
   return (
-    <Router>
-      <AppContent />
-      <Toaster />
-    </Router>
+    <ThemeProvider attribute="class" defaultTheme="light" enableSystem>
+      <Router>
+        <AppContent />
+        <Toaster />
+      </Router>
+    </ThemeProvider>
   );
 }

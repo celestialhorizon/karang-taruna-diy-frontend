@@ -1,5 +1,6 @@
 import { Cloudinary } from '@cloudinary/url-gen';
 import { fill } from '@cloudinary/url-gen/actions/resize';
+import { authStorage } from './auth';
 
 // Initialize Cloudinary instance
 const cld = new Cloudinary({
@@ -37,7 +38,7 @@ export const uploadImage = async (file: File): Promise<{ url: string; publicId: 
   const formData = new FormData();
   formData.append('image', file);
 
-  const token = localStorage.getItem('token');
+  const token = authStorage.getToken();
   
   const response = await fetch(`${import.meta.env.VITE_API_URL}/api/upload/image`, {
     method: 'POST',
@@ -61,7 +62,7 @@ export const uploadVideo = async (file: File): Promise<{ url: string; publicId: 
   const formData = new FormData();
   formData.append('video', file);
 
-  const token = localStorage.getItem('token');
+  const token = authStorage.getToken();
   
   const response = await fetch(`${import.meta.env.VITE_API_URL}/api/upload/video`, {
     method: 'POST',
@@ -82,7 +83,7 @@ export const uploadVideo = async (file: File): Promise<{ url: string; publicId: 
 
 // Delete media from Cloudinary
 export const deleteMedia = async (publicId: string, resourceType: 'image' | 'video' = 'image'): Promise<void> => {
-  const token = localStorage.getItem('token');
+  const token = authStorage.getToken();
   
   const response = await fetch(
     `${import.meta.env.VITE_API_URL}/api/upload/${publicId}?resourceType=${resourceType}`,

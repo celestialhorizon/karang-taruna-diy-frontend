@@ -3,10 +3,11 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from './ui/
 import { Input } from './ui/input';
 import { Label } from './ui/label';
 import { Button } from './ui/button';
+import { ThemeToggle } from './ui/theme-toggle';
 import { Checkbox } from './ui/checkbox';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from './ui/select';
-import { toast } from 'sonner@2.0.3';
-import logo from 'assets/logo';
+import { toast } from 'sonner';
+import logo from '../assets/logo.png';
 import { api } from '../lib/api';
 
 interface RegisterPageProps {
@@ -48,54 +49,106 @@ export function RegisterPage({ onNavigate }: RegisterPageProps) {
 
   const validateForm = () => {
     const newErrors: Record<string, string> = {};
+    let firstErrorField: string | null = null;
 
     // Field wajib
     if (!formData.name.trim()) {
       newErrors.name = 'Nama lengkap wajib diisi';
+      if (!firstErrorField) firstErrorField = 'name';
     }
 
     if (!formData.username.trim()) {
       newErrors.username = 'Username wajib diisi';
+      if (!firstErrorField) firstErrorField = 'username';
     }
 
     if (!formData.email.trim()) {
       newErrors.email = 'Email wajib diisi';
+      if (!firstErrorField) firstErrorField = 'email';
     } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
       newErrors.email = 'Format email tidak valid';
+      if (!firstErrorField) firstErrorField = 'email';
     }
 
     if (!formData.password) {
       newErrors.password = 'Password wajib diisi';
+      if (!firstErrorField) firstErrorField = 'password';
     } else if (formData.password.length < 6) {
       newErrors.password = 'Password minimal 6 karakter';
+      if (!firstErrorField) firstErrorField = 'password';
     }
 
     if (formData.password !== formData.confirmPassword) {
       newErrors.confirmPassword = 'Password tidak sama';
+      if (!firstErrorField) firstErrorField = 'confirmPassword';
     }
 
     if (!formData.karangTarunaName.trim()) {
       newErrors.karangTarunaName = 'Nama karang taruna wajib diisi';
+      if (!firstErrorField) firstErrorField = 'karangTarunaName';
     }
 
     if (!formData.provinsi.trim()) {
       newErrors.provinsi = 'Provinsi wajib diisi';
+      if (!firstErrorField) firstErrorField = 'provinsi';
     }
 
     if (!formData.kabupatenKota.trim()) {
       newErrors.kabupatenKota = 'Kabupaten/Kota wajib diisi';
+      if (!firstErrorField) firstErrorField = 'kabupatenKota';
     }
 
     if (!formData.kecamatan.trim()) {
       newErrors.kecamatan = 'Kecamatan wajib diisi';
+      if (!firstErrorField) firstErrorField = 'kecamatan';
     }
 
     if (!formData.jalan.trim()) {
       newErrors.jalan = 'Jalan wajib diisi';
+      if (!firstErrorField) firstErrorField = 'jalan';
+    }
+
+    if (!formData.phone.trim()) {
+      newErrors.phone = 'Nomor telepon wajib diisi';
+      if (!firstErrorField) firstErrorField = 'phone';
+    }
+
+    if (formData.interests.length === 0) {
+      newErrors.interests = 'Pilih minimal satu minat DIY';
+      if (!firstErrorField) firstErrorField = 'interests';
+    }
+
+    if (!formData.skillLevel) {
+      newErrors.skillLevel = 'Tingkat keahlian wajib dipilih';
+      if (!firstErrorField) firstErrorField = 'skillLevel';
+    }
+
+    if (!formData.peranAnggota) {
+      newErrors.peranAnggota = 'Peran anggota wajib dipilih';
+      if (!firstErrorField) firstErrorField = 'peranAnggota';
     }
 
     setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
+    
+    // Auto scroll to first error field
+    if (firstErrorField) {
+      const element = document.getElementById(firstErrorField);
+      if (element) {
+        element.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        element.focus();
+      }
+    }
+    
+    const isValid = Object.keys(newErrors).length === 0;
+    
+    // Show toast error if validation fails
+    if (!isValid) {
+      const firstError = Object.values(newErrors)[0];
+      console.log('Frontend validation errors:', newErrors);
+      toast.error(`Validasi gagal: ${firstError}`);
+    }
+    
+    return isValid;
   };
 
   const handleInterestChange = (category: string, checked: boolean) => {
@@ -130,19 +183,66 @@ export function RegisterPage({ onNavigate }: RegisterPageProps) {
         toast.success('Registrasi berhasil! Silakan login.');
         onNavigate('login');
       } catch (error: any) {
-        if (error.message.includes('Email')) {
-          setErrors({ email: error.message });
-        } else if (error.message.includes('Username')) {
-          setErrors({ username: error.message });
-        } else {
+        console.error('Registration error:', error);
+        console.error('Error response:', error.response);
+        console.error('Error data:', error.response?.data);
+        
+        // Handle backend validation errors
+        if (error.response?.data?.errors) {
+          // Set individual field errors from backend
+          const backendErrors = error.response.data.errors;
+          console.log('Backend errors:', backendErrors);
+          setErrors(backendErrors);
+          
+          // Show toast for first error
+          const firstError = Object.values(backendErrors)[0] as string;
+          toast.error(`Validasi gagal: ${firstError}`);
+          
+          // Auto scroll to first error field
+          const firstErrorField = Object.keys(backendErrors)[0];
+          if (firstErrorField) {
+            setTimeout(() => {
+              const element = document.getElementById(firstErrorField);
+              if (element) {
+                element.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                element.focus();
+              }
+            }, 100);
+          }
+        } else if (error.response?.data?.message) {
+          // Handle single error message (like duplicate email/username)
+          const message = error.response.data.message;
+          console.log('Single error message:', message);
+          
+          if (message.includes('Email')) {
+            setErrors({ email: message });
+            toast.error(message);
+          } else if (message.includes('Username')) {
+            setErrors({ username: message });
+            toast.error(message);
+          } else {
+            toast.error(message);
+          }
+        } else if (error.message) {
+          // Handle ApiError or other errors with message
+          console.log('Error message:', error.message);
           toast.error(error.message);
+        } else {
+          // Handle unknown errors
+          console.log('Unknown error:', error);
+          toast.error('Terjadi kesalahan saat registrasi. Silakan coba lagi.');
         }
       }
     }
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-red-50 to-yellow-50 flex items-center justify-center p-4">
+    <div className="min-h-screen bg-gradient-to-br from-red-50 to-yellow-50 flex items-center justify-center p-4 relative">
+      {/* Theme Toggle */}
+      <div className="absolute top-4 right-4">
+        <ThemeToggle />
+      </div>
+      
       <Card className="w-full max-w-2xl my-8">
         <CardHeader className="text-center space-y-2">
           <div className="flex justify-center mb-2">
@@ -227,14 +327,16 @@ export function RegisterPage({ onNavigate }: RegisterPageProps) {
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="phone">Nomor Telepon</Label>
+                <Label htmlFor="phone">Nomor Telepon <span className="text-red-600">*</span></Label>
                 <Input
                   id="phone"
                   type="tel"
                   placeholder="Contoh: 081234567890"
                   value={formData.phone}
                   onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+                  className={errors.phone ? 'border-red-500' : ''}
                 />
+                {errors.phone && <p className="text-sm text-red-500">{errors.phone}</p>}
               </div>
             </div>
 
@@ -255,13 +357,15 @@ export function RegisterPage({ onNavigate }: RegisterPageProps) {
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="peranAnggota">Peran Anggota</Label>
+                <Label htmlFor="peranAnggota">Peran Anggota <span className="text-red-600">*</span></Label>
                 <Input
                   id="peranAnggota"
                   placeholder="Contoh: Ketua, Sekretaris, Anggota, dll."
                   value={formData.peranAnggota}
                   onChange={(e) => setFormData({ ...formData, peranAnggota: e.target.value })}
+                  className={errors.peranAnggota ? 'border-red-500' : ''}
                 />
+                {errors.peranAnggota && <p className="text-sm text-red-500">{errors.peranAnggota}</p>}
               </div>
             </div>
 
@@ -325,14 +429,15 @@ export function RegisterPage({ onNavigate }: RegisterPageProps) {
               <h3 className="font-semibold text-lg border-b pb-2">Minat dan Keahlian</h3>
               
               <div className="space-y-2">
-                <Label>Minat DIY (dapat memilih lebih dari satu)</Label>
-                <div className="space-y-2 bg-gray-50 p-4 rounded-md">
+                <Label>Minat DIY (dapat memilih lebih dari satu) <span className="text-red-600">*</span></Label>
+                <div id="interests" className="space-y-2 bg-gray-50 p-4 rounded-md">
+                  {errors.interests && <p className="text-sm text-red-500 mb-2">{errors.interests}</p>}
                   {CATEGORIES.map((category) => (
                     <div key={category} className="flex items-center space-x-2">
                       <Checkbox
                         id={`interest-${category}`}
                         checked={formData.interests.includes(category)}
-                        onCheckedChange={(checked) => handleInterestChange(category, checked as boolean)}
+                        onCheckedChange={(checked: boolean) => handleInterestChange(category, checked)}
                       />
                       <label
                         htmlFor={`interest-${category}`}
@@ -346,9 +451,9 @@ export function RegisterPage({ onNavigate }: RegisterPageProps) {
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="skillLevel">Tingkat Keahlian</Label>
-                <Select value={formData.skillLevel} onValueChange={(value) => setFormData({ ...formData, skillLevel: value })}>
-                  <SelectTrigger>
+                <Label htmlFor="skillLevel">Tingkat Keahlian <span className="text-red-600">*</span></Label>
+                <Select value={formData.skillLevel} onValueChange={(value: string) => setFormData({ ...formData, skillLevel: value })}>
+                  <SelectTrigger className={errors.skillLevel ? 'border-red-500' : ''}>
                     <SelectValue placeholder="Pilih tingkat keahlian" />
                   </SelectTrigger>
                   <SelectContent>
@@ -359,6 +464,7 @@ export function RegisterPage({ onNavigate }: RegisterPageProps) {
                     ))}
                   </SelectContent>
                 </Select>
+                {errors.skillLevel && <p className="text-sm text-red-500">{errors.skillLevel}</p>}
               </div>
             </div>
 

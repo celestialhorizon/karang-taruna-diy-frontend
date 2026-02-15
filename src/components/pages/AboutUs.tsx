@@ -30,12 +30,12 @@ export function AboutUs({ onNavigate }: AboutUsProps) {
           {/* Introduction */}
           <div className="bg-white rounded-lg shadow-sm p-6 sm:p-8">
             <h2 className="text-2xl font-bold text-gray-900 mb-4">Memberdayakan Generasi Muda Indonesia</h2>
-            <p className="text-gray-700 leading-relaxed mb-4">
+            <p className="text-gray-500 leading-relaxed mb-4">
               Platform Tutorial DIY Karang Taruna adalah sebuah inisiatif digital yang dirancang khusus untuk 
               memberdayakan anggota Karang Taruna di seluruh Indonesia dengan keterampilan praktis dalam bidang 
               pertukangan dan DIY (Do It Yourself).
             </p>
-            <p className="text-gray-700 leading-relaxed">
+            <p className="text-gray-500 leading-relaxed">
               Kami percaya bahwa dengan memberikan akses mudah ke pengetahuan dan keterampilan praktis, 
               generasi muda dapat lebih mandiri, produktif, dan berkontribusi positif bagi masyarakat.
             </p>
@@ -50,7 +50,7 @@ export function AboutUs({ onNavigate }: AboutUsProps) {
                 </div>
                 <h3 className="text-xl font-bold text-gray-900">Visi Kami</h3>
               </div>
-              <p className="text-gray-700 leading-relaxed">
+              <p className="text-gray-500 leading-relaxed">
                 Menjadi platform pembelajaran keterampilan DIY terdepan yang memberdayakan setiap anggota 
                 Karang Taruna untuk memiliki kompetensi praktis yang berguna dalam kehidupan sehari-hari.
               </p>
@@ -63,7 +63,7 @@ export function AboutUs({ onNavigate }: AboutUsProps) {
                 </div>
                 <h3 className="text-xl font-bold text-gray-900">Misi Kami</h3>
               </div>
-              <ul className="space-y-2 text-gray-700">
+              <ul className="space-y-2 text-gray-500">
                 <li className="flex items-start gap-2">
                   <span className="text-red-600 mt-1">•</span>
                   <span>Menyediakan tutorial berkualitas tinggi yang mudah dipahami</span>
@@ -197,7 +197,7 @@ export function AboutUs({ onNavigate }: AboutUsProps) {
               <Button
                 onClick={() => onNavigate('home')}
                 variant="outline"
-                className="border-white text-white hover:bg-white/10"
+                className="border-white text-gray-500 hover:bg-white/10"
                 size="lg"
               >
                 Jelajahi Tutorial

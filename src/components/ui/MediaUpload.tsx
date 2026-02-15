@@ -65,7 +65,7 @@ export function MediaUpload({
       }
 
       const response = await fetch(
-        `http://localhost:5000/api/upload/${type}`,
+        `${import.meta.env.VITE_API_URL}/api/upload/${type}`,
         {
           method: 'POST',
           headers: {

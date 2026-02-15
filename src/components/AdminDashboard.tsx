@@ -1,10 +1,12 @@
 import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from './ui/card';
 import { Button } from './ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from './ui/tabs';
-import { ShieldCheck, LogOut, Users, BookOpen, BarChart3 } from 'lucide-react';
+import { ShieldCheck, LogOut, Users, BookOpen, BarChart3, Home } from 'lucide-react';
 import { TutorialManagement } from './admin/TutorialManagement';
 import { UserManagement } from './admin/UserManagement';
+import { ThemeToggle } from './ui/theme-toggle';
 import { api } from '../lib/api';
 import { authStorage } from '../lib/auth';
 
@@ -12,9 +14,11 @@ interface AdminDashboardProps {
   admin: any;
   onNavigate: (page: string) => void;
   onAdminLogout: () => void;
+  defaultTab?: string;
 }
 
-export function AdminDashboard({ admin, onAdminLogout }: AdminDashboardProps) {
+export function AdminDashboard({ admin, onAdminLogout, defaultTab = "tutorials" }: AdminDashboardProps) {
+  const navigate = useNavigate();
   const [stats, setStats] = useState({
     totalUsers: 0,
     totalTutorials: 6,
@@ -40,7 +44,7 @@ export function AdminDashboard({ admin, onAdminLogout }: AdminDashboardProps) {
         try {
           // For now, we'll estimate progress count
           // In a real implementation, you might want a dedicated admin endpoint
-          const allProgress = await fetch(`${process.env.REACT_APP_API_URL || 'http://localhost:5000'}/api/tutorials/user/progress`, {
+          const allProgress = await fetch(`${import.meta.env.VITE_API_URL}/api/tutorials/user/progress`, {
             headers: {
               'Authorization': `Bearer ${token}`
             }
@@ -80,6 +84,11 @@ export function AdminDashboard({ admin, onAdminLogout }: AdminDashboardProps) {
               </div>
             </div>
             <div className="flex items-center gap-4">
+              <ThemeToggle />
+              <Button variant="outline" size="sm" onClick={() => navigate('/')} className="bg-white text-red-600 hover:bg-red-50">
+                <Home className="w-4 h-4 mr-2" />
+                <span className="hidden sm:inline">Beranda</span>
+              </Button>
               <div className="text-right hidden sm:block">
                 <p className="text-sm text-red-100">Login sebagai</p>
                 <p className="font-medium">{admin.name}</p>
@@ -140,7 +149,9 @@ export function AdminDashboard({ admin, onAdminLogout }: AdminDashboardProps) {
             <CardDescription>Kelola konten tutorial dan data pengguna</CardDescription>
           </CardHeader>
           <CardContent>
-            <Tabs defaultValue="tutorials" className="w-full">
+            <Tabs defaultValue={defaultTab} className="w-full" onValueChange={(value: string) => {
+              navigate(`/admin/${value}`);
+            }}>
               <TabsList className="grid w-full grid-cols-2 mb-6">
                 <TabsTrigger value="tutorials">Manajemen Tutorial</TabsTrigger>
                 <TabsTrigger value="users">Manajemen Pengguna</TabsTrigger>

@@ -121,7 +121,7 @@ export function FAQ({ onNavigate }: FAQProps) {
         <div className="space-y-6">
           {/* Introduction */}
           <div className="bg-white rounded-lg shadow-sm p-6">
-            <p className="text-gray-700">
+            <p className="text-gray-400">
               Tidak menemukan jawaban yang Anda cari? Silakan{' '}
               <button
                 onClick={() => onNavigate('contact')}
@@ -162,7 +162,7 @@ export function FAQ({ onNavigate }: FAQProps) {
                           />
                         </button>
                         {isOpen && (
-                          <div className="px-6 pb-4 text-gray-700 leading-relaxed">
+                          <div className="px-6 pb-4 text-gray-500 leading-relaxed">
                             {item.answer}
                           </div>
                         )}
@@ -176,7 +176,7 @@ export function FAQ({ onNavigate }: FAQProps) {
           {/* Still have questions */}
           <div className="bg-gradient-to-r from-red-50 to-yellow-50 border border-red-200 rounded-lg p-6 text-center">
             <h3 className="font-semibold text-gray-900 mb-2">Masih Ada Pertanyaan?</h3>
-            <p className="text-sm text-gray-700 mb-4">
+            <p className="text-sm text-gray-900 mb-4">
               Tim kami siap membantu Anda. Jangan ragu untuk menghubungi kami.
             </p>
             <Button

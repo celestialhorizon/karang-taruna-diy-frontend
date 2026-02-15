@@ -10,6 +10,7 @@ import { toast } from 'sonner';
 import { api } from '../../lib/api';
 import { MediaUpload } from '../ui/MediaUpload';
 import { authStorage } from '../../lib/auth';
+import { ImageWithFallback } from '../ImageWithFallback';
 
 interface Step {
   stepNumber: number;
@@ -57,7 +58,7 @@ export function StepManagement({ tutorialId, tutorialTitle, onBack }: StepManage
       const token = authStorage.getToken();
       if (!token) return;
       const numberedSteps = updatedSteps.map((s, i) => ({ ...s, stepNumber: i + 1 }));
-      await fetch(`http://localhost:5000/api/tutorials/${tutorialId}`, {
+      await fetch(`${import.meta.env.VITE_API_URL}/api/tutorials/${tutorialId}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
         body: JSON.stringify({ steps: numberedSteps })
@@ -311,7 +312,7 @@ export function StepManagement({ tutorialId, tutorialTitle, onBack }: StepManage
                 <div className="space-y-3">
                   {step.imageUrl && (
                     <div className="border rounded-lg overflow-hidden">
-                      <img 
+                      <ImageWithFallback
                         src={step.imageUrl} 
                         alt={step.title}
                         className="w-full h-48 object-cover"
