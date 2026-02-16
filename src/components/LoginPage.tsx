@@ -40,6 +40,14 @@ export function LoginPage({ onNavigate, onLogin }: LoginPageProps) {
     if (Object.keys(newErrors).length === 0) {
       try {
         const response = await api.login(formData);
+        
+        // Check if user is admin - prevent admin login through user login
+        if (response.role === 'admin') {
+          toast.error('Email atau password salah');
+          setErrors({ password: 'Email atau password salah' });
+          return;
+        }
+        
         authStorage.setToken(response.token);
         const { token, ...userData } = response;
         authStorage.setUser(userData);

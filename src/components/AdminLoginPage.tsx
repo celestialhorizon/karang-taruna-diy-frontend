@@ -60,14 +60,17 @@ export function AdminLoginPage({ onNavigate, onAdminLogin }: AdminLoginPageProps
           toast.success(`Selamat datang, ${response.username}!`);
           onAdminLogin(adminData);
           onNavigate('admin-dashboard');
+        } else if (response.role === 'user') {
+          setErrors({ password: 'Email atau password salah' });
+          toast.error('Email atau password salah');
         } else {
-          setErrors({ password: 'Anda tidak memiliki akses admin' });
-          toast.error('Login gagal. Akun ini tidak memiliki akses admin.');
+          setErrors({ password: 'Email atau password salah' });
+          toast.error('Email atau password salah');
         }
       } catch (error: any) {
         console.error('Admin login error:', error);
-        setErrors({ password: 'Email atau password admin salah' });
-        toast.error('Login gagal. Periksa kembali kredensial admin Anda.');
+        setErrors({ password: 'Email atau password salah' });
+        toast.error('Email atau password salah');
       }
     }
   };
