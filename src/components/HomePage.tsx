@@ -4,7 +4,7 @@ import { Button } from './ui/button';
 import { Input } from './ui/input';
 import { Badge } from './ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from './ui/select';
-import { Hammer, Search, LogOut, Video, Wrench, Paintbrush, Lightbulb, Droplet, Menu, GraduationCap, ShieldCheck } from 'lucide-react';
+import { Hammer, Search, LogOut, Video, Wrench, Paintbrush, Lightbulb, Droplet, Menu, GraduationCap, ShieldCheck, Clock } from 'lucide-react';
 import { ImageWithFallback } from './ImageWithFallback';
 import { Footer } from './Footer';
 import { BuntingDecoration } from './BuntingDecoration';
@@ -52,6 +52,7 @@ export function HomePage({ user, onNavigate, onLogout }: HomePageProps) {
   const [tutorials, setTutorials] = useState<Tutorial[]>([]);
   const [userProgress, setUserProgress] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     loadTutorials();
@@ -63,6 +64,7 @@ export function HomePage({ user, onNavigate, onLogout }: HomePageProps) {
   const loadTutorials = async () => {
     try {
       setLoading(true);
+      setError(null);
       const filters: any = {};
       if (selectedCategory !== 'Semua') filters.category = selectedCategory;
       if (difficultyFilter !== 'all') filters.difficulty = difficultyFilter;
@@ -71,6 +73,8 @@ export function HomePage({ user, onNavigate, onLogout }: HomePageProps) {
       setTutorials(tutorialsData);
     } catch (error: any) {
       console.error('Failed to load tutorials:', error);
+      setError('Sedang ada gangguan ke Server, silakan coba lagi nanti.');
+      setTutorials([]); // Set empty array on error
     } finally {
       setLoading(false);
     }
@@ -105,11 +109,7 @@ export function HomePage({ user, onNavigate, onLogout }: HomePageProps) {
     return progress && !progress.isCompleted && progress.completedSteps.length > 0;
   };
 
-  // Parse duration number to string
-  const formatDuration = (duration: number) => {
-    return `${duration} menit`;
-  };
-
+  
   // Filter and sort tutorials
   const getFilteredAndSortedTutorials = () => {
     let filtered = tutorials.filter(tutorial => {
@@ -161,13 +161,7 @@ export function HomePage({ user, onNavigate, onLogout }: HomePageProps) {
     }
   };
 
-  if (loading) {
-    return (
-      <div className="min-h-screen bg-gradient-to-br from-red-50 to-yellow-50 flex items-center justify-center">
-        <p>Loading tutorials...</p>
-      </div>
-    );
-  }
+  // Remove full loading screen - header should always be visible
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -391,49 +385,121 @@ export function HomePage({ user, onNavigate, onLogout }: HomePageProps) {
             <p className="text-xs sm:text-sm text-gray-500">{filteredTutorials.length} tutorial</p>
           </div>
           
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
-            {filteredTutorials.map((tutorial) => (
-              <Card key={tutorial._id} className="overflow-hidden hover:shadow-lg transition-shadow">
-                <div className="relative h-40 sm:h-48">
-                  <ImageWithFallback
-                    src={tutorial.imageUrl}
-                    alt={tutorial.title}
-                    className="w-full h-full object-cover"
-                  />
-                  <div className="absolute top-2 right-2 sm:top-3 sm:right-3">
-                    <Badge className="bg-white text-gray-900 text-xs">
-                      <><Video className="w-3 h-3 mr-1" /> Video</>
-                    </Badge>
+          {loading && (
+            // Loading skeletons with better design
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
+              {Array.from({ length: 6 }).map((_, index) => (
+                <Card key={index} className="overflow-hidden">
+                  <div className="relative h-40 sm:h-48 bg-gray-100">
+                    <div className="absolute inset-0 bg-gradient-to-br from-gray-100 to-gray-200 animate-pulse" />
+                    <div className="absolute top-2 right-2 sm:top-3 sm:right-3">
+                      <div className="w-16 h-6 bg-gray-200 rounded animate-pulse" />
+                    </div>
                   </div>
-                </div>
-                <CardHeader className="p-4">
-                  <CardTitle className="text-base sm:text-lg line-clamp-2">{tutorial.title}</CardTitle>
-                  <CardDescription className="line-clamp-2 text-sm">{tutorial.description}</CardDescription>
-                </CardHeader>
-                <CardContent className="p-4 pt-0">
-                  <div className="flex items-center justify-between mb-3 gap-2">
-                    <Badge variant="outline" className="text-xs">{tutorial.category}</Badge>
-                    <Badge variant="outline" className="text-xs">{tutorial.difficulty}</Badge>
-                  </div>
-                  <div className="flex items-center justify-between mb-3">
-                    <span className="text-xs text-gray-500">{formatDuration(tutorial.duration)}</span>
-                    <span className="text-xs text-gray-500">{tutorial.author}</span>
-                  </div>
-                  <Button 
-                    size="sm" 
-                    className="bg-red-600 hover:bg-red-700 text-xs sm:text-sm"
-                    onClick={() => handleViewDetail(tutorial._id)}
-                  >
-                    {user ? 'Lihat Detail' : 'Login untuk Akses'}
-                  </Button>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
+                  <CardHeader className="p-4">
+                    <div className="space-y-2">
+                      <div className="h-5 bg-gray-200 rounded-lg animate-pulse" />
+                      <div className="h-4 bg-gray-200 rounded animate-pulse w-4/5" />
+                    </div>
+                  </CardHeader>
+                  <CardContent className="p-4 pt-0 space-y-3">
+                    <div className="flex gap-2">
+                      <div className="h-6 bg-gray-200 rounded-full animate-pulse w-20" />
+                      <div className="h-6 bg-gray-200 rounded-full animate-pulse w-16" />
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <div className="h-4 bg-gray-200 rounded animate-pulse w-24" />
+                      <div className="h-8 bg-gray-200 rounded animate-pulse w-20" />
+                    </div>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          )}
 
-          {filteredTutorials.length === 0 && (
-            <div className="text-center py-12">
-              <p className="text-sm sm:text-base text-gray-500">Tidak ada tutorial yang ditemukan</p>
+          {error && (
+            // Error state - better positioning
+            <div className="flex items-center justify-center min-h-[400px]">
+              <div className="bg-red-50 border border-red-200 rounded-lg p-8 text-center max-w-md w-full">
+                <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <svg className="w-8 h-8 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 16.5c-.77.833.192 2.5 1.732 2.5z" />
+                  </svg>
+                </div>
+                <h3 className="text-lg font-semibold text-red-800 mb-2">Gagal Memuat Data</h3>
+                <p className="text-red-600 mb-4 max-w-md mx-auto">{error}</p>
+                <Button onClick={loadTutorials} className="bg-red-600 hover:bg-red-700">
+                  <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                  </svg>
+                  Coba Lagi
+                </Button>
+              </div>
+            </div>
+          )}
+
+          {!loading && !error && filteredTutorials.length === 0 && (
+            // Empty state - better design
+            <div className="flex items-center justify-center min-h-[400px]">
+              <div className="bg-gray-50 border border-gray-200 rounded-lg p-8 text-center max-w-md w-full">
+                <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <svg className="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
+                  </svg>
+                </div>
+                <h3 className="text-lg font-semibold text-gray-800 mb-2">Tidak Ada Tutorial</h3>
+                <p className="text-gray-600 mb-4 max-w-md mx-auto">
+                  Tidak ada tutorial yang ditemukan untuk kategori "{selectedCategory === 'Semua' ? 'Semua Kategori' : selectedCategory}".
+                </p>
+                <Button onClick={() => setSelectedCategory('Semua')} variant="outline">
+                  Lihat Semua Tutorial
+                </Button>
+              </div>
+            </div>
+          )}
+
+          {!loading && !error && filteredTutorials.length > 0 && (
+            // Normal state - tutorial cards
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
+              {filteredTutorials.map((tutorial) => (
+                <Card key={tutorial._id} className="overflow-hidden hover:shadow-lg transition-shadow">
+                  <div className="relative h-40 sm:h-48">
+                    <ImageWithFallback
+                      src={tutorial.imageUrl}
+                      alt={tutorial.title}
+                      className="w-full h-full object-cover"
+                    />
+                    <div className="absolute top-2 right-2 sm:top-3 sm:right-3">
+                      <Badge className="bg-white text-gray-900 text-xs">
+                        <><Video className="w-3 h-3 mr-1" /> Video</>
+                      </Badge>
+                    </div>
+                  </div>
+                  <CardHeader className="p-4">
+                    <CardTitle className="text-base sm:text-lg line-clamp-2">{tutorial.title}</CardTitle>
+                    <CardDescription className="line-clamp-2 text-sm">{tutorial.description}</CardDescription>
+                  </CardHeader>
+                  <CardContent className="p-4 pt-0">
+                    <div className="flex items-center justify-between mb-3 gap-2">
+                      <Badge variant="outline" className="text-xs">{tutorial.category}</Badge>
+                      <Badge variant="outline" className="text-xs">{tutorial.difficulty}</Badge>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-1 text-xs text-gray-500">
+                        <Clock className="w-3 h-3" />
+                        {tutorial.duration} menit
+                      </div>
+                      <Button 
+                        size="sm" 
+                        className="bg-red-600 hover:bg-red-700 text-xs sm:text-sm"
+                        onClick={() => handleViewDetail(tutorial._id)}
+                      >
+                        {user ? 'Lihat Detail' : 'Login untuk Akses'}
+                      </Button>
+                    </div>
+                  </CardContent>
+                </Card>
+              ))}
             </div>
           )}
         </div>
